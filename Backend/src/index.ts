@@ -8,9 +8,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// TODO: Import and use routes here
-// import userRoutes from './routes/userRoutes';
-// app.use('/api/users', userRoutes);
+
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import driverRoutes from './routes/driverRoutes';
+import companyRoutes from './routes/companyRoutes';
+
+app.use('/api/auth', authRoutes);
+app.use('/api', userRoutes);
+app.use('/api/driver', driverRoutes);
+app.use('/api/company', companyRoutes);
 
 app.get('/', (req, res) => {
   res.send('Bus Tracking & Passenger Safety Backend is running.');
