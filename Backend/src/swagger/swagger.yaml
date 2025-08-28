@@ -2,9 +2,25 @@ openapi: 3.0.0
 info:
   title: Bus Tracking & Safety API
   version: 1.0.0
+tags:
+  - name: Auth
+    description: Authentication and user management
+  - name: Routes
+    description: Bus routes management
+  - name: Locations
+    description: Real-time bus locations
+  - name: Reviews
+    description: Bus and user reviews
+  - name: Favorites
+    description: User favorite buses
+  - name: Alerts
+    description: Safety and system alerts
+  - name: Waitlists
+    description: Bus waitlist management
 paths:
   /api/auth/register:
     post:
+      tags: [Auth]
       summary: Register a new user
       requestBody:
         required: true
@@ -26,6 +42,352 @@ paths:
         '409':
           description: Username exists
   /api/auth/login:
+    post:
+      tags: [Auth]
+  /api/routes:
+    get:
+      tags: [Routes]
+      summary: Get all routes
+      responses:
+        '200':
+          description: List of routes
+    post:
+      tags: [Routes]
+      summary: Create a new route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                polyline:
+                  type: string
+                stops:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '201':
+          description: Route created
+
+  /api/routes/{id}:
+    get:
+      tags: [Routes]
+      summary: Get route by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Route details
+        '404':
+          description: Not found
+    put:
+      tags: [Routes]
+      summary: Update route
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                polyline:
+                  type: string
+                stops:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Route updated
+    delete:
+      tags: [Routes]
+      summary: Delete route
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Route deleted
+
+  /api/locations:
+    post:
+      tags: [Locations]
+      summary: Add a bus location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                busId:
+                  type: integer
+                lat:
+                  type: number
+                lng:
+                  type: number
+      responses:
+        '201':
+          description: Location added
+
+  /api/locations/{busId}/latest:
+    get:
+      tags: [Locations]
+      summary: Get latest location for a bus
+      parameters:
+        - in: path
+          name: busId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Latest location
+        '404':
+          description: Not found
+
+  /api/locations/{busId}:
+    get:
+      tags: [Locations]
+      summary: Get recent locations for a bus
+      parameters:
+        - in: path
+          name: busId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of locations
+
+  /api/reviews:
+    post:
+      tags: [Reviews]
+      summary: Add a review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                busId:
+                  type: integer
+                rating:
+                  type: integer
+                comment:
+                  type: string
+      responses:
+        '201':
+          description: Review added
+
+  /api/reviews/bus/{busId}:
+    get:
+      tags: [Reviews]
+      summary: Get reviews for a bus
+      parameters:
+        - in: path
+          name: busId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of reviews
+
+  /api/reviews/user/{userId}:
+    get:
+      tags: [Reviews]
+      summary: Get reviews by a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of reviews
+
+  /api/favorites:
+    post:
+      tags: [Favorites]
+      summary: Add a favorite bus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                busId:
+                  type: integer
+      responses:
+        '201':
+          description: Favorite added
+    delete:
+      tags: [Favorites]
+      summary: Remove a favorite bus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                busId:
+                  type: integer
+      responses:
+        '200':
+          description: Favorite removed
+
+  /api/favorites/user/{userId}:
+    get:
+      tags: [Favorites]
+      summary: Get user's favorite buses
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of favorites
+
+  /api/alerts:
+    post:
+      tags: [Alerts]
+      summary: Add an alert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                busId:
+                  type: integer
+                type:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Alert added
+
+  /api/alerts/bus/{busId}:
+    get:
+      tags: [Alerts]
+      summary: Get alerts for a bus
+      parameters:
+        - in: path
+          name: busId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of alerts
+
+  /api/alerts/user/{userId}:
+    get:
+      tags: [Alerts]
+      summary: Get alerts for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of alerts
+
+  /api/waitlists:
+    post:
+      tags: [Waitlists]
+      summary: Add to waitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                busId:
+                  type: integer
+                userId:
+                  type: integer
+                stationId:
+                  type: integer
+      responses:
+        '201':
+          description: Added to waitlist
+    delete:
+      tags: [Waitlists]
+      summary: Remove from waitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                busId:
+                  type: integer
+                userId:
+                  type: integer
+                stationId:
+                  type: integer
+      responses:
+        '200':
+          description: Removed from waitlist
+
+  /api/waitlists/bus/{busId}:
+    get:
+      tags: [Waitlists]
+      summary: Get waitlist for a bus
+      parameters:
+        - in: path
+          name: busId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of waitlist entries
     post:
       summary: Login
       requestBody:
