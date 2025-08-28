@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Bus",
-    "slug": "Bus",
+  "name": "Acit Hackathon 2025",
+  "slug": "acit-hackathon-2025",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
