@@ -27,9 +27,19 @@ export async function login(req: Request, res: Response) {
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     const valid = await validatePassword(user, password);
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
+  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '2d' });
     res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: (err as Error).message });
+  }
+}
+
+export async function logout(req: Request, res: Response) {
+  try {
+    // Since we're using JWTs (stateless), we just return success
+    // The frontend will handle removing the token from storage
+    res.json({ message: 'Logout successful' });
+  } catch (err) {
+    res.status(500).json({ message: 'Logout failed', error: (err as Error).message });
   }
 }
