@@ -9,11 +9,15 @@ app.use(cors());
 app.use(express.json());
 
 
+
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import driverRoutes from './routes/driverRoutes';
 import companyRoutes from './routes/companyRoutes';
+import testRoutes from './routes/testRoutes';
 
+
+app.use('/api/test', testRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api/driver', driverRoutes);
