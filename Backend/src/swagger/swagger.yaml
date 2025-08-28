@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Bus Tracking & Safety API
+  version: 1.0.0
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, driver, company]
+      responses:
+        '201':
+          description: User registered
+        '409':
+          description: Username exists
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login success
+        '401':
+          description: Invalid credentials

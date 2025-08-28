@@ -1,16 +1,12 @@
+
 import { Router } from 'express';
+import { register, login } from '../controllers/userController';
 const router = Router();
 
 // POST /api/auth/register
-router.post('/register', (req, res) => {
-  // Register user/driver/company
-  res.send('Register endpoint');
-});
+router.post('/register', register);
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
-  // Login logic
-  res.send('Login endpoint');
-});
+router.post('/login', login);
 
 export default router;
