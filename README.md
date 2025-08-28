@@ -1,4 +1,4 @@
-# Public Transportation Tracking System
+# गुरुजी
 
 A real-time bus tracking and passenger safety platform that connects **users**, **drivers**, and **transport companies**.  
 The system uses GPS from the driver’s mobile device to provide live bus locations and additional features to enhance travel experience and safety.
