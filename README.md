@@ -27,16 +27,15 @@ The system uses GPS from the driver’s mobile device to provide live bus locati
 ---
 
 ## System Architecture
-- **Frontend:** Web & Mobile App (React Native / Expo or Flutter)
-- **Backend:** Node.js / Express or Django REST Framework
-- **Database:** PostgreSQL / MongoDB
-- **Real-Time Tracking:** WebSockets / Firebase / MQTT
-- **Maps & Navigation:** Google Maps API / OpenStreetMap
-- **Push Notifications:** Firebase Cloud Messaging (FCM) or OneSignal
+- **Frontend:** Web & Mobile App (React Native / Expo)
+- **Backend:** Node.js / Express
+- **Database:** PostgreSQL
+- **Real-Time Tracking:** WebSockets
+- **Maps & Navigation:** Leaflet/ OpenStreetMap
 
 ---
 
 ## Installation & Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/public-transport-tracker.git
+   git clone https://github.com/demonzkillertz/Acit-Hackthon-2025.git
