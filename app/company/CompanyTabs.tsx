@@ -1,22 +1,19 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 import CompanyView from '../../components/company/CompanyView';
 import Company2 from '../../components/company/Company2';
+import CompanySettings from '../../components/company/CompanySettings';
 import About from '../../components/company/About';
 import { View, Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
-function DummyCompanyTab() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Company Tab 2 (Sample)</Text>
-    </View>
-  );
-}
-
 export default function CompanyTabs() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator 
       screenOptions={({ route }) => ({
@@ -44,15 +41,20 @@ export default function CompanyTabs() {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e0e0e0',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : 5,
+          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 70 + insets.bottom : 60,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
       })}
     >
       <Tab.Screen name="CompanyHome" component={CompanyView} options={{ title: 'Dashboard' }} />
       <Tab.Screen name="CompanyTab2" component={Company2} options={{ title: 'Analytics' }} />
-      <Tab.Screen name="CompanyTab3" component={DummyCompanyTab} options={{ title: 'Settings' }} />
+      <Tab.Screen name="CompanyTab3" component={CompanySettings} options={{ title: 'Settings' }} />
       <Tab.Screen name="CompanyTab4" component={About} options={{ title: 'About' }} />
     </Tab.Navigator>
   );

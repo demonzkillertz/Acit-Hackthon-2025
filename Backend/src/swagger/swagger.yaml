@@ -1,408 +1,494 @@
 openapi: 3.0.0
 info:
-  title: Bus Tracking & Safety API
+  title: Bus Tracking API
+  description: API for real-time bus tracking and safety platform
   version: 1.0.0
-tags:
-  - name: Auth
-    description: Authentication and user management
-  - name: Routes
-    description: Bus routes management
-  - name: Locations
-    description: Real-time bus locations
-  - name: Reviews
-    description: Bus and user reviews
-  - name: Favorites
-    description: User favorite buses
-  - name: Alerts
-    description: Safety and system alerts
-  - name: Waitlists
-    description: Bus waitlist management
+  contact:
+    name: Bus Tracking Team
+    email: support@bustracking.com
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
 paths:
-  /api/auth/register:
+  /auth/register:
     post:
-      tags: [Auth]
+      tags: [Authentication]
       summary: Register a new user
+      description: Create a new user account with optional company registration
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - password
               properties:
                 username:
                   type: string
+                  minLength: 3
+                  description: Unique username for the account
                 password:
                   type: string
+                  minLength: 6
+                  description: Password for the account
+                email:
+                  type: string
+                  format: email
+                  description: Optional email address
+                phone:
+                  type: string
+                  description: Optional phone number
                 role:
                   type: string
-                  enum: [user, driver, company]
+                  enum: [user, company]
+                  default: user
+                  description: User role - 'user' for regular users, 'company' for business accounts
+                companyName:
+                  type: string
+                  description: Required if role is 'company'
+                companyAddress:
+                  type: string
+                  description: Required if role is 'company'
+                operatingLicense:
+                  type: string
+                  description: Required if role is 'company'
+            example:
+              username: "johndoe"
+              password: "password123"
+              email: "john@example.com"
+              phone: "+1234567890"
+              role: "user"
       responses:
         '201':
-          description: User registered
-        '409':
-          description: Username exists
-  /api/auth/login:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully"
+                  token:
+                    type: string
+                    description: JWT token for authentication
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - validation errors or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
     post:
-      tags: [Auth]
-  /api/routes:
-    get:
-      tags: [Routes]
-      summary: Get all routes
-      responses:
-        '200':
-          description: List of routes
-    post:
-      tags: [Routes]
-      summary: Create a new route
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and receive JWT token
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                name:
-                  type: string
-                polyline:
-                  type: string
-                stops:
-                  type: array
-                  items:
-                    type: object
-      responses:
-        '201':
-          description: Route created
-
-  /api/routes/{id}:
-    get:
-      tags: [Routes]
-      summary: Get route by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Route details
-        '404':
-          description: Not found
-    put:
-      tags: [Routes]
-      summary: Update route
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                polyline:
-                  type: string
-                stops:
-                  type: array
-                  items:
-                    type: object
-      responses:
-        '200':
-          description: Route updated
-    delete:
-      tags: [Routes]
-      summary: Delete route
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Route deleted
-
-  /api/locations:
-    post:
-      tags: [Locations]
-      summary: Add a bus location
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                busId:
-                  type: integer
-                lat:
-                  type: number
-                lng:
-                  type: number
-      responses:
-        '201':
-          description: Location added
-
-  /api/locations/{busId}/latest:
-    get:
-      tags: [Locations]
-      summary: Get latest location for a bus
-      parameters:
-        - in: path
-          name: busId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Latest location
-        '404':
-          description: Not found
-
-  /api/locations/{busId}:
-    get:
-      tags: [Locations]
-      summary: Get recent locations for a bus
-      parameters:
-        - in: path
-          name: busId
-          required: true
-          schema:
-            type: integer
-        - in: query
-          name: limit
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of locations
-
-  /api/reviews:
-    post:
-      tags: [Reviews]
-      summary: Add a review
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                busId:
-                  type: integer
-                rating:
-                  type: integer
-                comment:
-                  type: string
-      responses:
-        '201':
-          description: Review added
-
-  /api/reviews/bus/{busId}:
-    get:
-      tags: [Reviews]
-      summary: Get reviews for a bus
-      parameters:
-        - in: path
-          name: busId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of reviews
-
-  /api/reviews/user/{userId}:
-    get:
-      tags: [Reviews]
-      summary: Get reviews by a user
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of reviews
-
-  /api/favorites:
-    post:
-      tags: [Favorites]
-      summary: Add a favorite bus
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                busId:
-                  type: integer
-      responses:
-        '201':
-          description: Favorite added
-    delete:
-      tags: [Favorites]
-      summary: Remove a favorite bus
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                busId:
-                  type: integer
-      responses:
-        '200':
-          description: Favorite removed
-
-  /api/favorites/user/{userId}:
-    get:
-      tags: [Favorites]
-      summary: Get user's favorite buses
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of favorites
-
-  /api/alerts:
-    post:
-      tags: [Alerts]
-      summary: Add an alert
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                busId:
-                  type: integer
-                type:
-                  type: string
-                message:
-                  type: string
-      responses:
-        '201':
-          description: Alert added
-
-  /api/alerts/bus/{busId}:
-    get:
-      tags: [Alerts]
-      summary: Get alerts for a bus
-      parameters:
-        - in: path
-          name: busId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of alerts
-
-  /api/alerts/user/{userId}:
-    get:
-      tags: [Alerts]
-      summary: Get alerts for a user
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of alerts
-
-  /api/waitlists:
-    post:
-      tags: [Waitlists]
-      summary: Add to waitlist
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                busId:
-                  type: integer
-                userId:
-                  type: integer
-                stationId:
-                  type: integer
-      responses:
-        '201':
-          description: Added to waitlist
-    delete:
-      tags: [Waitlists]
-      summary: Remove from waitlist
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                busId:
-                  type: integer
-                userId:
-                  type: integer
-                stationId:
-                  type: integer
-      responses:
-        '200':
-          description: Removed from waitlist
-
-  /api/waitlists/bus/{busId}:
-    get:
-      tags: [Waitlists]
-      summary: Get waitlist for a bus
-      parameters:
-        - in: path
-          name: busId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of waitlist entries
-    post:
-      summary: Login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
+              required:
+                - username
+                - password
               properties:
                 username:
                   type: string
+                  description: Username for the account
                 password:
                   type: string
+                  description: Password for the account
+            example:
+              username: "johndoe"
+              password: "password123"
       responses:
         '200':
-          description: Login success
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful"
+                  token:
+                    type: string
+                    description: JWT token for authentication
+                  user:
+                    $ref: '#/components/schemas/User'
         '401':
           description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      description: Logout the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout successful"
+        '401':
+          description: Unauthorized - invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /companies:
+    get:
+      tags: [Companies]
+      summary: Get all companies
+      description: Retrieve a list of all registered bus companies
+      responses:
+        '200':
+          description: List of companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+
+  /companies/{id}:
+    get:
+      tags: [Companies]
+      summary: Get company by ID
+      description: Get detailed information about a specific company
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Company ID
+      responses:
+        '200':
+          description: Company details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /companies/{id}/stats:
+    get:
+      tags: [Companies]
+      summary: Get company statistics
+      description: Get statistical information for a company
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Company ID
+      responses:
+        '200':
+          description: Company statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalBuses:
+                    type: integer
+                  activeBuses:
+                    type: integer
+                  totalRoutes:
+                    type: integer
+                  totalReviews:
+                    type: integer
+                  averageRating:
+                    type: number
+                    format: float
+
+  /buses:
+    get:
+      tags: [Buses]
+      summary: Get all buses
+      description: Retrieve a list of all buses with optional filtering
+      parameters:
+        - in: query
+          name: companyId
+          schema:
+            type: integer
+          description: Filter buses by company ID
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, maintenance, inactive]
+          description: Filter buses by status
+      responses:
+        '200':
+          description: List of buses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bus'
+
+  /buses/{id}:
+    get:
+      tags: [Buses]
+      summary: Get bus by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bus details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bus'
+        '404':
+          description: Bus not found
+
+  /buses/{id}/location:
+    get:
+      tags: [Buses]
+      summary: Get bus current location
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bus location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [user, company, admin]
+        company_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        user_id:
+          type: integer
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        operating_license:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Bus:
+      type: object
+      properties:
+        id:
+          type: integer
+        plate_number:
+          type: string
+        company_id:
+          type: integer
+        model:
+          type: string
+        capacity:
+          type: integer
+        driver_id:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          enum: [active, maintenance, inactive]
+        created_at:
+          type: string
+          format: date-time
+
+    Route:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        polyline:
+          type: string
+        stops:
+          type: array
+          items:
+            type: object
+        created_at:
+          type: string
+          format: date-time
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        bus_id:
+          type: integer
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        speed:
+          type: number
+          format: float
+        heading:
+          type: number
+          format: float
+        timestamp:
+          type: string
+          format: date-time
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        bus_id:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        bus_id:
+          type: integer
+        type:
+          type: string
+          enum: [safety, breakdown, delay, arrival]
+        message:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        bus_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+          nullable: true

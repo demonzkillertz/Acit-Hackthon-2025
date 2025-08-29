@@ -288,20 +288,6 @@ export default function Search({ onBack, activeTab = 'search', onNavigate }: Sea
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('home')}>
-          <Ionicons name="home" size={24} color="#666" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('search')}>
-          <Ionicons name="search" size={24} color="#333" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('location')}>
-          <Ionicons name="location" size={24} color="#666" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('profile')}>
-          <Ionicons name="person" size={24} color="#666" />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

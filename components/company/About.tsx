@@ -1,13 +1,42 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AuthContext } from '@/context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function About() {
+  const { user, logout } = useContext(AuthContext);
+  const navigation = useNavigation();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            if (logout) {
+              await logout();
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.screen}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <Ionicons name="arrow-back" size={26} color="#222" />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={26} color="#222" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Account</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -20,11 +49,11 @@ export default function About() {
             style={styles.avatar}
           />
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.name}>Siddhartha Manandhar</Text>
-            <Text style={styles.phone}>9812345678</Text>
+            <Text style={styles.name}>{user?.username || 'Company Manager'}</Text>
+            <Text style={styles.phone}>{user?.email || '9812345678'}</Text>
             <View style={styles.roleBadge}>
-              <Ionicons name="star" size={16} color="#fff" />
-              <Text style={styles.roleBadgeText}>Manager</Text>
+              <Ionicons name="business" size={16} color="#fff" />
+              <Text style={styles.roleBadgeText}>Company</Text>
             </View>
           </View>
         </View>
@@ -58,9 +87,9 @@ export default function About() {
       </TouchableOpacity>
 
       {/* Log Out Section */}
-      <TouchableOpacity style={styles.sectionRow}>
-        <MaterialCommunityIcons name="logout" size={22} color="#222" />
-        <Text style={styles.sectionRowText}>Log Out</Text>
+      <TouchableOpacity style={styles.sectionRow} onPress={handleLogout}>
+        <MaterialCommunityIcons name="logout" size={22} color="#e74c3c" />
+        <Text style={[styles.sectionRowText, { color: '#e74c3c' }]}>Log Out</Text>
       </TouchableOpacity>
     </View>
   );

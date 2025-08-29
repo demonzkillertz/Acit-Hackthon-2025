@@ -7,11 +7,11 @@ export async function findUserByUsername(username: string): Promise<User | null>
   return result.rows[0] || null;
 }
 
-export async function createUser(username: string, password: string, role: string): Promise<User> {
+export async function createUser(username: string, password: string, role: string, email?: string): Promise<User> {
   const hashedPassword = await bcrypt.hash(password, 10);
   const result = await pool.query(
-    'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING *',
-    [username, hashedPassword, role]
+    'INSERT INTO users (username, password, role, email) VALUES ($1, $2, $3, $4) RETURNING *',
+    [username, hashedPassword, role, email || null]
   );
   return result.rows[0];
 }

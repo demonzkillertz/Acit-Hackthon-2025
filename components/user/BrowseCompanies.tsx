@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: 15,
+    paddingBottom: 80, // Reduced from 100 to match smaller tab bar
   },
   loadingText: {
     textAlign: 'center',

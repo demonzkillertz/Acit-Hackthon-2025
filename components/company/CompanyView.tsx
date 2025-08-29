@@ -11,6 +11,7 @@ const CompanyView = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showAddBusModal, setShowAddBusModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [newBus, setNewBus] = useState({
     plate_number: '',
     model: '',
@@ -81,15 +82,32 @@ const CompanyView = () => {
     <View style={styles.screen}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
           <Ionicons name="menu" size={28} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Guruji<Text style={{ fontSize: 14 }}> (गुरुजी)</Text></Text>
-        <Image
-          source={{ uri: user?.profilePic || 'https://randomuser.me/api/portraits/men/33.jpg' }}
-          style={styles.profilePic}
-        />
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
+          <Ionicons name="log-out-outline" size={24} color="#e74c3c" />
+        </TouchableOpacity>
       </View>
+
+      {/* Menu Dropdown */}
+      {showMenu && (
+        <View style={styles.menuDropdown}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => {setShowMenu(false); /* Add profile action */}}>
+            <Ionicons name="person-outline" size={20} color="#333" />
+            <Text style={styles.menuText}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => {setShowMenu(false); /* Add settings action */}}>
+            <Ionicons name="settings-outline" size={20} color="#333" />
+            <Text style={styles.menuText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => {setShowMenu(false); handleLogout()}}>
+            <Ionicons name="log-out-outline" size={20} color="#e74c3c" />
+            <Text style={[styles.menuText, {color: '#e74c3c'}]}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       {/* Company Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
@@ -220,7 +238,7 @@ const CompanyView = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8fafc', // Softer background
     paddingTop: 40,
     paddingHorizontal: 0,
   },
@@ -230,24 +248,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 22,
     marginBottom: 12,
-    backgroundColor: '#fff',
-    paddingVertical: 15,
-    elevation: 2,
+    backgroundColor: '#ffffff',
+    paddingVertical: 18,
+    elevation: 3,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     letterSpacing: 1,
     flex: 1,
-    textAlign: 'center'
+    textAlign: 'center',
+    color: '#1e293b', // Professional dark blue-gray
   },
   profilePic: {
     width: 36,
     height: 36,
     borderRadius: 18,
     marginLeft: 10,
+    borderWidth: 2,
+    borderColor: '#3b82f6', // Modern blue accent
   },
-  // Stats Container
+  // Stats Container - Enhanced colors
   statsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 15,
@@ -255,23 +280,30 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-    marginHorizontal: 5,
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    padding: 22,
+    marginHorizontal: 6,
+    borderRadius: 12,
     alignItems: 'center',
     elevation: 2,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    borderWidth: 0.5,
+    borderColor: '#e2e8f0',
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1e293b',
     marginTop: 10,
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
-    marginTop: 5,
+    color: '#64748b', // Better gray
+    marginTop: 6,
+    fontWeight: '500',
   },
   driversHeader: {
     flexDirection: 'row',
@@ -279,127 +311,193 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 20,
     marginBottom: 15,
+    paddingVertical: 8,
   },
   driversTitle: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: 'bold',
     flex: 1,
     marginLeft: 10,
+    color: '#1e293b',
   },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3498db',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
+    backgroundColor: '#3b82f6', // Modern blue
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   addText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   cardsContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 80,
   },
   driverCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 18,
     marginBottom: 16,
     elevation: 2,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    borderWidth: 0.5,
+    borderColor: '#e2e8f0',
   },
   driverImg: {
     width: 66,
     height: 66,
     borderRadius: 33,
-    marginRight: 16,
-    borderWidth: 2,
-    borderColor: '#3498db',
+    marginRight: 18,
+    borderWidth: 3,
+    borderColor: '#3b82f6',
   },
   driverInfo: {
     flex: 1,
   },
   driverText: {
-    color: '#333',
+    color: '#334155',
     fontSize: 15,
-    marginBottom: 4,
+    marginBottom: 5,
+    lineHeight: 20,
   },
   driverBold: {
-    fontWeight: 'bold',
-    color: '#3498db',
+    fontWeight: '700',
+    color: '#3b82f6',
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
-    color: '#666',
+    color: '#64748b',
+    fontWeight: '500',
   },
   noBusesText: {
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
-    color: '#666',
+    color: '#64748b',
     paddingHorizontal: 20,
+    fontWeight: '500',
   },
-  // Modal Styles
+  // Enhanced Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(30, 41, 59, 0.6)', // Better overlay
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 25,
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 28,
     width: '90%',
     maxWidth: 400,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
-    color: '#333',
+    color: '#1e293b',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 16,
     fontSize: 16,
+    backgroundColor: '#f8fafc',
+    color: '#1e293b',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 12,
+    gap: 12,
   },
   modalBtn: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    marginHorizontal: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cancelBtn: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#ef4444', // Modern red
+    shadowColor: '#ef4444',
   },
   confirmBtn: {
-    backgroundColor: '#27ae60',
+    backgroundColor: '#10b981', // Modern green
+    shadowColor: '#10b981',
   },
   cancelBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 16,
   },
   confirmBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  // Enhanced Menu and logout styles
+  logoutBtn: {
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#fef2f2',
+  },
+  menuDropdown: {
+    position: 'absolute',
+    top: 70,
+    left: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 8,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    zIndex: 1000,
+    minWidth: 160,
+    borderWidth: 0.5,
+    borderColor: '#e2e8f0',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#f1f5f9',
+  },
+  menuText: {
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#334155',
+    fontWeight: '500',
   },
 });
 

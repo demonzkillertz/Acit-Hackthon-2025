@@ -1,261 +1,154 @@
-import { Pool } from 'pg';
-import bcrypt from 'bcryptjs';
+import pool from '../config/db';
 import dotenv from 'dotenv';
 
-// Load environment variables
 dotenv.config();
 
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'bus',
-  password: process.env.DB_PASSWORD || 'admin',
-  port: parseInt(process.env.DB_PORT || '5432'),
-});
-
-async function seedData() {
-  const client = await pool.connect();
-  
+const seedData = async () => {
   try {
-    await client.query('BEGIN');
-    
+    console.log('Starting database seeding...');
+
     // Clear existing data
-    await client.query('DELETE FROM route_stops');
-    await client.query('DELETE FROM bus_locations');
-    await client.query('DELETE FROM user_favorites');
-    await client.query('DELETE FROM user_alerts');
-    await client.query('DELETE FROM waitlists');
-    await client.query('DELETE FROM reviews');
-    await client.query('DELETE FROM routes');
-    await client.query('DELETE FROM buses');
-    await client.query('DELETE FROM companies');
-    await client.query('DELETE FROM users WHERE role != \'admin\'');
+    await pool.query('TRUNCATE TABLE waitlists, reviews, user_alerts, user_favorites, bus_locations, route_stops, routes, buses, companies, users RESTART IDENTITY CASCADE');
+    console.log('Existing data cleared.');
+
+    // Insert specific users as requested
+    const userInsertQuery = `
+      INSERT INTO users (username, email, password, role, phone, is_active) VALUES
+      ('kriman', 'kriman@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234567', true),
+      ('siddhartha', 'siddhartha@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'company', '+977-9841234568', true),
+      ('sabi', 'sabi@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'driver', '+977-9841234569', true),
+      ('admin', 'admin@bustracking.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'admin', '+977-9841234500', true),
+      ('ramesh_driver', 'ramesh@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'driver', '+977-9841234570', true),
+      ('surya_driver', 'surya@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'driver', '+977-9841234571', true),
+      ('anjana_user', 'anjana@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234572', true),
+      ('prakash_user', 'prakash@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234573', true),
+      ('maya_user', 'maya@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234574', true),
+      ('bishal_company', 'bishal@greatnepalbus.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'company', '+977-9841234575', true),
+      ('krishna_company', 'krishna@goldentransport.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'company', '+977-9841234576', true),
+      ('deepak_driver', 'deepak@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'driver', '+977-9841234577', true),
+      ('asha_user', 'asha@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234578', true),
+      ('binod_user', 'binod@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'user', '+977-9841234579', true),
+      ('rajesh_driver', 'rajesh@example.com', '$2a$10$JYP.HsP7CJ810izglj/C1ezC32NlWPI3FJ/UEtezXv.ZwRbyAdJyO', 'driver', '+977-9841234580', true)
+      RETURNING id;
+    `;
     
-    console.log('Cleared existing data');
+    await pool.query(userInsertQuery);
+    console.log('Users inserted successfully.');
+
+    // Insert companies
+    const companyInsertQuery = `
+      INSERT INTO companies (user_id, name, description, contact_email, contact_phone, address, website, established_year, fleet_size, rating, total_reviews, is_verified) VALUES
+      (2, 'Siddhartha Transport Services', 'Premium bus services connecting major cities across Nepal with comfort and safety as our priority.', 'siddhartha@example.com', '+977-9841234568', 'Kathmandu, Nepal', 'www.siddharthatransport.com', 2015, 25, 4.5, 120, true),
+      (10, 'Great Nepal Bus Service', 'Reliable and affordable transportation solutions for daily commuters and long-distance travelers.', 'bishal@greatnepalbus.com', '+977-9841234575', 'Pokhara, Nepal', 'www.greatnepalbus.com', 2010, 40, 4.2, 85, true),
+      (11, 'Golden Transport Company', 'Luxury bus services with modern amenities and professional drivers for a comfortable journey.', 'krishna@goldentransport.com', '+977-9841234576', 'Chitwan, Nepal', 'www.goldentransport.com', 2018, 15, 4.8, 65, true);
+    `;
     
-    // Create some sample user accounts first
-    const hashedPassword = await bcrypt.hash('password123', 10);
+    await pool.query(companyInsertQuery);
+    console.log('Companies inserted successfully.');
+
+    // Insert buses
+    const busInsertQuery = `
+      INSERT INTO buses (company_id, driver_id, plate_number, model, capacity, amenities, status) VALUES
+      (1, 3, 'BA-1-CHA-1234', 'Tata Ultra AC', 45, '{"ac": true, "wifi": true, "charging_ports": true, "entertainment": true}', 'active'),
+      (1, 5, 'BA-1-CHA-1235', 'Ashok Leyland Viking', 52, '{"ac": false, "wifi": false, "charging_ports": true, "entertainment": false}', 'active'),
+      (1, 6, 'BA-1-CHA-1236', 'Mercedes-Benz Travego', 40, '{"ac": true, "wifi": true, "charging_ports": true, "entertainment": true, "reclining_seats": true}', 'active'),
+      (1, 12, 'BA-1-CHA-1237', 'Volvo B9R', 48, '{"ac": true, "wifi": true, "charging_ports": true, "entertainment": true, "gps": true}', 'maintenance'),
+      (2, 15, 'GAN-2-PA-5678', 'Tata Starbus', 50, '{"ac": true, "wifi": false, "charging_ports": true, "entertainment": false}', 'active'),
+      (2, NULL, 'GAN-2-PA-5679', 'Mahindra Tourister', 35, '{"ac": false, "wifi": false, "charging_ports": false, "entertainment": false}', 'active'),
+      (3, NULL, 'NAR-3-GHA-9012', 'Scania Metrolink', 55, '{"ac": true, "wifi": true, "charging_ports": true, "entertainment": true, "luxury_seats": true}', 'active'),
+      (3, NULL, 'NAR-3-GHA-9013', 'MAN Lions Coach', 42, '{"ac": true, "wifi": true, "charging_ports": true, "entertainment": true, "reclining_seats": true}', 'active');
+    `;
     
-    const users = [
-      { username: 'john_doe', email: 'john@example.com', role: 'user' },
-      { username: 'jane_smith', email: 'jane@example.com', role: 'user' },
-      { username: 'mike_wilson', email: 'mike@example.com', role: 'user' },
-      { username: 'demo_company', email: 'company@example.com', role: 'company' }
-    ];
+    await pool.query(busInsertQuery);
+    console.log('Buses inserted successfully.');
+
+    // Insert routes
+    const routeInsertQuery = `
+      INSERT INTO routes (company_id, bus_id, route_name, start_location, end_location, distance_km, estimated_duration, base_fare, is_active) VALUES
+      (1, 1, 'Kathmandu to Pokhara Express', 'Kathmandu Bus Park', 'Pokhara Tourist Bus Park', 200.5, 360, 800.00, true),
+      (1, 2, 'Kathmandu to Chitwan Safari', 'New Bus Park, Kathmandu', 'Sauraha, Chitwan', 165.2, 300, 600.00, true),
+      (1, 3, 'Pokhara to Lumbini Heritage', 'Pokhara Bus Park', 'Lumbini Garden', 125.8, 240, 500.00, true),
+      (2, 5, 'Kathmandu to Dharan Direct', 'Kathmandu', 'Dharan Bus Park', 385.7, 480, 1200.00, true),
+      (2, 6, 'Pokhara to Butwal Connection', 'Pokhara', 'Butwal Bus Terminal', 98.3, 180, 400.00, true),
+      (3, 7, 'Luxury Kathmandu to Janakpur', 'Kathmandu', 'Janakpur', 225.4, 420, 1500.00, true),
+      (3, 8, 'Premium Chitwan to Lumbini', 'Bharatpur, Chitwan', 'Lumbini', 87.6, 150, 700.00, true);
+    `;
     
-    const userIds = [];
-    for (const user of users) {
-      const result = await client.query(
-        `INSERT INTO users (username, email, password, role, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, NOW(), NOW())
-         RETURNING id`,
-        [user.username, user.email, hashedPassword, user.role]
-      );
-      userIds.push(result.rows[0].id);
-      console.log(`Created user: ${user.username} with ID: ${result.rows[0].id}`);
-    }
+    await pool.query(routeInsertQuery);
+    console.log('Routes inserted successfully.');
+
+    // Insert bus locations
+    const locationInsertQuery = `
+      INSERT INTO bus_locations (bus_id, latitude, longitude, speed, heading) VALUES
+      (1, 27.8567, 84.8234, 65.5, 285),
+      (2, 27.6789, 84.4234, 55.2, 180),
+      (3, 28.2096, 83.9856, 0.0, 0),
+      (4, 27.7172, 85.3240, 0.0, 0),
+      (5, 26.8567, 87.2823, 48.7, 90),
+      (6, 27.8234, 83.4567, 42.3, 270),
+      (7, 27.2456, 85.9234, 58.9, 120),
+      (8, 27.5789, 84.5012, 0.0, 0);
+    `;
     
-    // Insert sample companies
-    const companies = [
-      {
-        name: 'Metro Express',
-        description: 'Fast and reliable intercity bus service connecting major cities across the region.',
-        contact_email: 'contact@metroexpress.com',
-        contact_phone: '+1-555-0101',
-        address: '123 Transport Hub, Metro City, MC 12345',
-        logo_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=200&h=200&fit=crop&crop=center',
-        website: 'https://metroexpress.com',
-        established_year: 2010,
-        fleet_size: 150,
-        rating: 4.5
-      },
-      {
-        name: 'City Connect',
-        description: 'Premium urban transportation with modern amenities and eco-friendly buses.',
-        contact_email: 'info@cityconnect.com',
-        contact_phone: '+1-555-0202',
-        address: '456 Urban Plaza, Downtown District, DD 54321',
-        logo_url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=200&h=200&fit=crop&crop=center',
-        website: 'https://cityconnect.com',
-        established_year: 2015,
-        fleet_size: 85,
-        rating: 4.3
-      },
-      {
-        name: 'Highway Heroes',
-        description: 'Long-distance travel specialists with luxury coaches and sleeper services.',
-        contact_email: 'support@highwayheroes.com',
-        contact_phone: '+1-555-0303',
-        address: '789 Highway Junction, Travel Town, TT 98765',
-        logo_url: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=200&h=200&fit=crop&crop=center',
-        website: 'https://highwayheroes.com',
-        established_year: 2008,
-        fleet_size: 200,
-        rating: 4.7
-      },
-      {
-        name: 'Green Transit',
-        description: 'Environmentally conscious transportation using electric and hybrid vehicles.',
-        contact_email: 'hello@greentransit.com',
-        contact_phone: '+1-555-0404',
-        address: '321 Eco Park, Green Valley, GV 13579',
-        logo_url: 'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e5?w=200&h=200&fit=crop&crop=center',
-        website: 'https://greentransit.com',
-        established_year: 2018,
-        fleet_size: 60,
-        rating: 4.6
-      },
-      {
-        name: 'Royal Coaches',
-        description: 'Premium luxury bus service with executive amenities and VIP treatment.',
-        contact_email: 'reservations@royalcoaches.com',
-        contact_phone: '+1-555-0505',
-        address: '654 Luxury Lane, Prestige Plaza, PP 24680',
-        logo_url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=200&h=200&fit=crop&crop=center',
-        website: 'https://royalcoaches.com',
-        established_year: 2005,
-        fleet_size: 120,
-        rating: 4.8
-      }
-    ];
+    await pool.query(locationInsertQuery);
+    console.log('Bus locations inserted successfully.');
+
+    // Insert reviews
+    const reviewInsertQuery = `
+      INSERT INTO reviews (company_id, user_id, bus_id, route_id, rating, comment) VALUES
+      (1, 1, 1, 1, 5, 'Excellent service! The AC bus was very comfortable and the driver was professional. Highly recommended for Kathmandu-Pokhara travel.'),
+      (1, 7, 2, 2, 4, 'Good experience overall. The bus was clean and reached on time. Could improve the entertainment system.'),
+      (1, 8, 3, 3, 5, 'Luxury bus with great amenities. The reclining seats made the journey very comfortable. Will definitely use again.'),
+      (2, 1, 5, 4, 4, 'Reliable service to Dharan. The journey was smooth and the staff was helpful. Good value for money.'),
+      (2, 9, 6, 5, 3, 'Average service. The bus was okay but could be cleaner. The route timing needs improvement.'),
+      (3, 8, 7, 6, 5, 'Premium service as promised! The luxury seats and onboard amenities were excellent. Worth the price.'),
+      (3, 13, 8, 7, 4, 'Great bus for Chitwan-Lumbini route. Professional service and comfortable journey.');
+    `;
     
-    for (const company of companies) {
-      const result = await client.query(
-        `INSERT INTO companies (name, description, contact_email, contact_phone, address, logo_url, website, established_year, fleet_size, rating, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
-         RETURNING id`,
-        [company.name, company.description, company.contact_email, company.contact_phone, 
-         company.address, company.logo_url, company.website, company.established_year, 
-         company.fleet_size, company.rating]
-      );
-      
-      const companyId = result.rows[0].id;
-      console.log(`Inserted company: ${company.name} with ID: ${companyId}`);
-      
-      // Insert sample buses for each company
-      const busTypes = ['Standard', 'Deluxe', 'AC', 'Sleeper', 'Executive'];
-      const busCount = Math.floor(Math.random() * 8) + 3; // 3-10 buses per company
-      
-      for (let i = 0; i < busCount; i++) {
-        const plateNumber = `${company.name.substring(0, 2).toUpperCase()}${Math.floor(Math.random() * 9000) + 1000}`;
-        const busType = busTypes[Math.floor(Math.random() * busTypes.length)];
-        const capacity = busType === 'Sleeper' ? 36 : busType === 'Executive' ? 28 : 45;
-        
-        const busResult = await client.query(
-          `INSERT INTO buses (company_id, plate_number, model, capacity, amenities, status, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-           RETURNING id`,
-          [companyId, plateNumber, `${busType} Coach`, capacity, 
-           JSON.stringify(['WiFi', 'AC', 'GPS Tracking', 'Emergency Kit']), 'active']
-        );
-        
-        const busId = busResult.rows[0].id;
-        
-        // Insert sample routes for each bus
-        const routes = [
-          { name: 'City Center - Airport', distance: 25.5, duration: 45, fare: 12.50 },
-          { name: 'Downtown - University', distance: 15.2, duration: 30, fare: 8.00 },
-          { name: 'Mall - Business District', distance: 18.7, duration: 35, fare: 10.00 },
-          { name: 'Station - Hospital', distance: 12.3, duration: 25, fare: 7.50 },
-          { name: 'Airport - Hotel Zone', distance: 22.1, duration: 40, fare: 11.00 }
-        ];
-        
-        if (i < 3) { // Only add routes for first 3 buses per company
-          const route = routes[i % routes.length];
-          const routeResult = await client.query(
-            `INSERT INTO routes (company_id, bus_id, route_name, start_location, end_location, distance_km, estimated_duration, base_fare, is_active, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
-             RETURNING id`,
-            [companyId, busId, route.name, route.name.split(' - ')[0], route.name.split(' - ')[1], 
-             route.distance, route.duration, route.fare, true]
-          );
-          
-          const routeId = routeResult.rows[0].id;
-          
-          // Add some route stops
-          const stops = [
-            route.name.split(' - ')[0],
-            `${route.name.split(' - ')[0]} Junction`,
-            'Central Plaza',
-            `${route.name.split(' - ')[1]} Terminal`,
-            route.name.split(' - ')[1]
-          ];
-          
-          for (let j = 0; j < stops.length; j++) {
-            await client.query(
-              `INSERT INTO route_stops (route_id, stop_name, stop_order, latitude, longitude, estimated_arrival, created_at, updated_at)
-               VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
-              [routeId, stops[j], j + 1, 
-               40.7128 + (Math.random() - 0.5) * 0.1, // Random coordinates around NYC
-               -74.0060 + (Math.random() - 0.5) * 0.1,
-               j * 10] // 10 minutes between stops
-            );
-          }
-        }
-        
-        // Add current location for active buses
-        if (Math.random() > 0.3) { // 70% of buses are currently active
-          await client.query(
-            `INSERT INTO bus_locations (bus_id, latitude, longitude, speed, heading, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-            [busId, 
-             40.7128 + (Math.random() - 0.5) * 0.1,
-             -74.0060 + (Math.random() - 0.5) * 0.1,
-             Math.floor(Math.random() * 60) + 20, // 20-80 km/h
-             Math.floor(Math.random() * 360)] // 0-359 degrees
-          );
-        }
-      }
-      
-      // Add some sample reviews for each company
-      const reviewTexts = [
-        'Excellent service! The buses are clean and punctual.',
-        'Good experience overall. The staff was helpful and friendly.',
-        'Comfortable seats and smooth ride. Highly recommended!',
-        'Great value for money. Will definitely use again.',
-        'Professional service with modern amenities.',
-        'Reliable transportation with good safety standards.',
-        'Pleasant journey with courteous drivers.',
-        'Well-maintained buses and reasonable fares.'
-      ];
-      
-      const reviewCount = Math.floor(Math.random() * 5) + 3; // 3-7 reviews per company
-      for (let i = 0; i < reviewCount; i++) {
-        const rating = Math.floor(Math.random() * 3) + 3; // 3-5 stars
-        const reviewText = reviewTexts[Math.floor(Math.random() * reviewTexts.length)];
-        const randomUserIndex = Math.floor(Math.random() * userIds.length);
-        
-        await client.query(
-          `INSERT INTO reviews (company_id, user_id, rating, comment, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, NOW(), NOW())`,
-          [companyId, userIds[randomUserIndex], rating, reviewText]
-        );
-      }
-    }
+    await pool.query(reviewInsertQuery);
+    console.log('Reviews inserted successfully.');
+
+    // Insert user favorites
+    const favoritesInsertQuery = `
+      INSERT INTO user_favorites (user_id, company_id, route_id) VALUES
+      (1, 1, 1),
+      (1, 2, 4),
+      (7, 1, 2),
+      (8, 3, 6),
+      (9, 2, 5),
+      (13, 1, 1),
+      (14, 2, 5);
+    `;
     
-    await client.query('COMMIT');
-    console.log('Sample data inserted successfully!');
+    await pool.query(favoritesInsertQuery);
+    console.log('User favorites inserted successfully.');
+
+    // Insert alerts
+    const alertsInsertQuery = `
+      INSERT INTO user_alerts (user_id, bus_id, route_id, type, message, is_read, expires_at) VALUES
+      (1, 1, 1, 'delay', 'Your bus from Kathmandu to Pokhara is running 30 minutes late due to traffic.', false, NOW() + INTERVAL '6 hours'),
+      (1, 5, 4, 'arrival', 'Bus BA-1-CHA-1234 will arrive at Mugling in 15 minutes.', true, NOW() + INTERVAL '2 hours'),
+      (7, 2, 2, 'safety', 'Weather alert: Heavy rain expected on Kathmandu-Chitwan route. Drive safely.', false, NOW() + INTERVAL '12 hours'),
+      (8, 7, 6, 'general', 'New luxury amenities available on Golden Transport buses!', false, NOW() + INTERVAL '7 days'),
+      (9, 6, 5, 'arrival', 'Your Pokhara-Butwal bus is approaching the terminal.', true, NOW() + INTERVAL '1 hour');
+    `;
     
+    await pool.query(alertsInsertQuery);
+    console.log('User alerts inserted successfully.');
+
+    console.log('Database seeding completed successfully!');
+    console.log('Test users created:');
+    console.log('- kriman (user role) - password: password123');
+    console.log('- siddhartha (company role) - password: password123');  
+    console.log('- sabi (driver role) - password: password123');
+    console.log('- admin (admin role) - password: password123');
+    console.log('Plus 11 additional users with various roles.');
+    
+    process.exit(0);
   } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Error inserting sample data:', error);
-    throw error;
-  } finally {
-    client.release();
+    console.error('Error seeding database:', error);
+    process.exit(1);
   }
-}
+};
 
-// Run the seed function if called directly
-if (require.main === module) {
-  seedData()
-    .then(() => {
-      console.log('Seed data completed');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Seed data failed:', error);
-      process.exit(1);
-    });
-}
-
-export default seedData;
+seedData();

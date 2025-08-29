@@ -8,6 +8,11 @@ import { initDb } from './config/initDb';
 
 dotenv.config();
 
+console.log('Environment check:');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+
 
 const app = express();
 app.use(cors());
@@ -51,8 +56,19 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-initDb().then(() => {
+initDb().then(async () => {
+  // Test database connection
+  try {
+    const { default: pool } = await import('./config/db');
+    const result = await pool.query('SELECT NOW()');
+    console.log('Database connected successfully:', result.rows[0].now);
+  } catch (err) {
+    console.error('Database connection failed:', err);
+  }
+  
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch(err => {
+  console.error('Database initialization failed:', err);
 });

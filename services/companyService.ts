@@ -114,7 +114,7 @@ export const companyService = {
 
   // Get all companies (for public view)
   getAllCompanies: async (): Promise<Company[]> => {
-    const response = await api.get('/api/companies');
+    const response = await api.get('/api/company/companies');
     return response.data;
   },
 

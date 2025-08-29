@@ -5,7 +5,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { userService, Favorite, Alert as UserAlert } from '../../services/userService';
 
 const UserView = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [alerts, setAlerts] = useState<UserAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +38,6 @@ const UserView = () => {
     loadUserData();
   };
 
-  const handleLogout = async () => {
-    if (logout) {
-      await logout();
-    }
-  };
-
   return (
     <View style={styles.screen}>
       {/* Header */}
@@ -60,6 +54,7 @@ const UserView = () => {
 
       <ScrollView 
         style={styles.content}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -119,30 +114,14 @@ const UserView = () => {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionCard}>
-              <Ionicons name="search" size={32} color="#3498db" />
-              <Text style={styles.actionText}>Search Buses</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
               <Ionicons name="location" size={32} color="#e74c3c" />
               <Text style={styles.actionText}>Track Bus</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
-              <Ionicons name="map" size={32} color="#27ae60" />
-              <Text style={styles.actionText}>View Routes</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard}>
               <Ionicons name="star" size={32} color="#f39c12" />
               <Text style={styles.actionText}>Favorites</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        {/* Logout Section */}
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color="#fff" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -178,6 +157,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 80, // Reduced from 100 to match smaller tab bar
   },
   welcomeContainer: {
     backgroundColor: '#fff',
@@ -287,7 +269,7 @@ const styles = StyleSheet.create({
   actionCard: {
     width: '48%',
     backgroundColor: '#f8f9fa',
-    padding: 20,
+    padding: 25,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 10,
@@ -298,25 +280,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 10,
     textAlign: 'center',
-  },
-  logoutContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  logoutBtn: {
-    flexDirection: 'row',
-    backgroundColor: '#e74c3c',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
   },
 });
 

@@ -6,7 +6,13 @@ export async function initDb() {
       id SERIAL PRIMARY KEY,
       username VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
-      role VARCHAR(20) NOT NULL
+      role VARCHAR(20) NOT NULL,
+      email VARCHAR(100),
+      phone VARCHAR(20),
+      profile_pic TEXT,
+      is_active BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS companies (

@@ -103,21 +103,7 @@ export default function Book({ onBack, activeTab = 'book', onNavigate }: BookScr
         </TouchableOpacity>
       </View>
 
-      {/* Navigation Bar */}
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => handleNavigation('home')}>
-          <Text style={[styles.navText, activeTab === 'home' && styles.activeNavText]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('trackBus')}>
-          <Text style={[styles.navText, activeTab === 'trackBus' && styles.activeNavText]}>Track Bus</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('routes')}>
-          <Text style={[styles.navText, activeTab === 'routes' && styles.activeNavText]}>Routes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('book')}>
-          <Text style={[styles.navText, activeTab === 'book' && styles.activeNavText]}>Book</Text>
-        </TouchableOpacity>
-      </View>
+
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Location Selection */}

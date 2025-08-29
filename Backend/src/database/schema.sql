@@ -19,7 +19,7 @@ DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) CHECK (role IN ('admin', 'company', 'driver', 'user')) NOT NULL,
     phone VARCHAR(20),

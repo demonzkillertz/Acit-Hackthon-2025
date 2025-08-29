@@ -278,21 +278,6 @@ export default function Routes({ onBack, activeTab = 'routes', onNavigate }: Rou
         </TouchableOpacity>
       </View>
 
-      {/* Navigation Bar */}
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => handleNavigation('home')}>
-          <Text style={[styles.navText, activeTab === 'home' && styles.activeNavText]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('trackBus')}>
-          <Text style={[styles.navText, activeTab === 'trackBus' && styles.activeNavText]}>Track Bus</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('routes')}>
-          <Text style={[styles.navText, activeTab === 'routes' && styles.activeNavText]}>Routes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation('book')}>
-          <Text style={[styles.navText, activeTab === 'book' && styles.activeNavText]}>Book</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -344,20 +329,6 @@ export default function Routes({ onBack, activeTab = 'routes', onNavigate }: Rou
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('home')}>
-          <Ionicons name="home" size={24} color="#333" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('search')}>
-          <Ionicons name="search" size={24} color="#666" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('location')}>
-          <Ionicons name="location" size={24} color="#666" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem} onPress={() => handleNavigation('profile')}>
-          <Ionicons name="person" size={24} color="#666" />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

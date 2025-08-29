@@ -1,17 +1,20 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 
 // Import all your screens from the same directory
 import UserView from '../../components/user/UserView';
-import BrowseCompanies from '../../components/user/BrowseCompanies';
 import Search from '../../components/user/Search';
-import Track from '../../components/user/Track';
-import Routes from '../../components/user/Routes';
+import Location from '../../components/user/Location';
+import UserProfile from '../../components/user/UserProfile';
 
 const Tab = createBottomTabNavigator();
 
 export default function UserTabs() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator 
       screenOptions={({ route }) => ({
@@ -19,16 +22,14 @@ export default function UserTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
-          if (route.name === 'Dashboard') {
+          if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Companies') {
-            iconName = focused ? 'business' : 'business-outline';
           } else if (route.name === 'Search') {
             iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'Track') {
-            iconName = focused ? 'locate' : 'locate-outline';
-          } else if (route.name === 'Routes') {
-            iconName = focused ? 'map' : 'map-outline';
+          } else if (route.name === 'Location') {
+            iconName = focused ? 'location' : 'location-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
           } else {
             iconName = 'ellipse-outline';
           }
@@ -41,17 +42,21 @@ export default function UserTabs() {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e0e0e0',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : 5,
+          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 70 + insets.bottom : 60,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
       })}
     >
-      <Tab.Screen name="Dashboard" component={UserView} options={{ title: 'Home' }} />
-      <Tab.Screen name="Companies" component={BrowseCompanies} options={{ title: 'Companies' }} />
+      <Tab.Screen name="Home" component={UserView} options={{ title: 'Home' }} />
       <Tab.Screen name="Search" component={Search} options={{ title: 'Search' }} />
-      <Tab.Screen name="Track" component={Track} options={{ title: 'Track' }} />
-      <Tab.Screen name="Routes" component={Routes} options={{ title: 'Routes' }} />
+      <Tab.Screen name="Location" component={Location} options={{ title: 'Location' }} />
+      <Tab.Screen name="Profile" component={UserProfile} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );
 }
