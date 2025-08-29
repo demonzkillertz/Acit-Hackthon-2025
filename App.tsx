@@ -1,5 +1,5 @@
+import 'react-native-url-polyfill/auto';
 import React, { useContext } from 'react';
-import { AppRegistry, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
@@ -32,7 +32,7 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   console.log('App component started');
 
   return (
@@ -41,15 +41,5 @@ function App() {
     </AuthProvider>
   );
 }
-
-// Register the main component with proper names for different platforms
-if (Platform.OS === 'web') {
-  AppRegistry.registerComponent('App', () => App);
-  AppRegistry.runApplication('App', { rootTag: document.getElementById('root') });
-} else {
-  AppRegistry.registerComponent('main', () => App);
-}
-
-export default App;
 
 

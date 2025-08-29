@@ -48,7 +48,7 @@ const handleSearch = (text: string) => {
           (item.name && item.name.toLowerCase().includes(lower)) ||
           (item.license && item.license.toLowerCase().includes(lower)) ||
           (item.phone && item.phone.includes(lower)) ||
-          (item.userId && item.userId.toLowerCase().includes(lower)) ||
+          ((item as any).userId && (item as any).userId.toLowerCase().includes(lower)) ||
           (item.status && item.status.toLowerCase().includes(lower)) 
         );
       }) 
@@ -97,16 +97,16 @@ const handleSearch = (text: string) => {
             <View style={styles.cardInfo}>
               {item.type === "driver" ? (
                 <>
-                  <Text style={styles.cardText}>Driver's name: <Text style={styles.cardBold}>{item.name}</Text></Text>
-                  <Text style={styles.cardText}>Bus License No.: <Text style={styles.cardBold}>{item.license}</Text></Text>
-                  <Text style={styles.cardText}>Phn No.: <Text style={styles.cardBold}>{item.phone}</Text></Text>
-                  <Text style={styles.cardText}>Status: <Text style={styles.cardBold}>{item.status}</Text></Text>
+                  <Text style={styles.cardText}>Driver's name: <Text style={styles.cardBold}>{item.name || 'N/A'}</Text></Text>
+                  <Text style={styles.cardText}>Bus License No.: <Text style={styles.cardBold}>{item.license || 'N/A'}</Text></Text>
+                  <Text style={styles.cardText}>Phn No.: <Text style={styles.cardBold}>{item.phone || 'N/A'}</Text></Text>
+                  <Text style={styles.cardText}>Status: <Text style={styles.cardBold}>{item.status || 'N/A'}</Text></Text>
                 </>
               ) : (
                 <>
-                  <Text style={styles.cardText}>User's name: <Text style={styles.cardBold}>{item.name}</Text></Text>
-                  <Text style={styles.cardText}>User ID : <Text style={styles.cardBold}>{item.userId}</Text></Text>
-                  <Text style={styles.cardText}>Phn No.: <Text style={styles.cardBold}>{item.phone}</Text></Text>
+                  <Text style={styles.cardText}>User's name: <Text style={styles.cardBold}>{item.name || 'N/A'}</Text></Text>
+                  <Text style={styles.cardText}>User ID : <Text style={styles.cardBold}>{(item as any).userId || 'N/A'}</Text></Text>
+                  <Text style={styles.cardText}>Phn No.: <Text style={styles.cardBold}>{item.phone || 'N/A'}</Text></Text>
                 </>
               )}
             </View>

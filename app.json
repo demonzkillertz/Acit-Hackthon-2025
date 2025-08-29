@@ -4,30 +4,38 @@
   "slug": "Guruji",
     "version": "1.0.0",
     "orientation": "portrait",
-  "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "bus",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "jsEngine": "hermes",
+    "main": "./index.js",
     "splash": {
       "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "hermes"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "jsEngine": "hermes"
     },
     "web": {
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
-  "plugins": [],
-    "experiments": {}
+  "plugins": [
+    "expo-font"
+  ],
+    "experiments": {
+      "typedRoutes": false
+    }
   }
 }

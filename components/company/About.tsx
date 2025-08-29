@@ -9,7 +9,7 @@ export default function About() {
       <View style={styles.headerRow}>
         <Ionicons name="arrow-back" size={26} color="#222" />
         <Text style={styles.headerTitle}>Account</Text>
-        <View style={{ width: 26 }} /> {/* Placeholder for right side icon */}
+        <View style={{ width: 26 }} />
       </View>
 
       {/* Profile Section */}

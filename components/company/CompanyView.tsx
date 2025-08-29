@@ -1,53 +1,41 @@
-import React, { useContext } from 'react';
-import { View, Text, Button, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { AuthContext } from '@/context/AuthContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-
-const drivers = [
-  {
-    name: 'Kriman Basi',
-    license: 'Ba 1 Ka 8848',
-    phone: '9812345677',
-    status: 'On Duty',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    duty: true,
-  },
-  {
-    name: 'Kriman Basi',
-    license: 'Ba 1 Ka 8848',
-    phone: '9812345677',
-    status: 'Off Duty',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    duty: false,
-  },
-  {
-    name: 'Kriman Basi',
-    license: 'Ba 1 Ka 8848',
-    phone: '9812345677',
-    status: 'On Duty',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    duty: true,
-  },
-  {
-    name: 'Kriman Basi',
-    license: 'Ba 1 Ka 8848',
-    phone: '9812345677',
-    status: 'Off Duty',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    duty: false,
-  },
-  {
-    name: 'Kriman Basi',
-    license: 'Ba 1 Ka 8848',
-    phone: '9812345677',
-    status: 'On Duty',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    duty: true,
-  },
-];
+import { companyService, Bus } from '../../services/companyService';
 
 const CompanyView = () => {
   const { user, logout } = useContext(AuthContext);
+  const [buses, setBuses] = useState<Bus[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeBuses, setActiveBuses] = useState(0);
+
+  const loadBuses = async () => {
+    try {
+      if (user?.id) {
+        const busesData = await companyService.getCompanyBuses(user.id);
+        setBuses(busesData);
+        // Count active buses (assuming buses with driver_id are active)
+        setActiveBuses(busesData.filter(bus => bus.driver_id).length);
+      }
+    } catch (error) {
+      console.error('Error loading buses:', error);
+      Alert.alert('Error', 'Failed to load buses');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBuses();
+  }, [user?.id]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadBuses();
+  };
 
   const handleLogout = async () => {
     if (logout) {
@@ -70,36 +58,50 @@ const CompanyView = () => {
       </View>
       {/* Active Transportations */}
       <View style={styles.activeContainer}>
-        <Text style={styles.activeText}>Active Transportations: <Text style={styles.activeCount}>15</Text></Text>
+        <Text style={styles.activeText}>Active Transportations: <Text style={styles.activeCount}>{activeBuses}</Text></Text>
       </View>
       {/* Drivers Section */}
       <View style={styles.driversHeader}>
         <Ionicons name="car-sport-outline" size={24} color="black" />
-        <Text style={styles.driversTitle}>Drivers:</Text>
+        <Text style={styles.driversTitle}>Buses:</Text>
         <TouchableOpacity style={styles.filterBtn}>
           <MaterialIcons name="filter-list" size={22} color="#333" />
           <Text style={styles.filterText}>Filter</Text>
         </TouchableOpacity>
       </View>
-      {/* Drivers Cards */}
-      <ScrollView contentContainerStyle={styles.cardsContainer}>
-        {drivers.map((driver, idx) => (
-          <View
-            key={idx}
-            style={[
-              styles.driverCard,
-              { backgroundColor: driver.duty ? '#111' : '#ccc' }
-            ]}
-          >
-            <Image source={{ uri: driver.image }} style={styles.driverImg} />
-            <View style={styles.driverInfo}>
-              <Text style={styles.driverText}>Driver's name: <Text style={styles.driverBold}>{driver.name}</Text></Text>
-              <Text style={styles.driverText}>Bus License No.: <Text style={styles.driverBold}>{driver.license}</Text></Text>
-              <Text style={styles.driverText}>Phn No.: <Text style={styles.driverBold}>{driver.phone}</Text></Text>
-              <Text style={styles.driverText}>Status: <Text style={styles.driverBold}>{driver.status}</Text></Text>
+      {/* Buses Cards */}
+      <ScrollView 
+        contentContainerStyle={styles.cardsContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {loading ? (
+          <Text style={styles.loadingText}>Loading buses...</Text>
+        ) : buses.length === 0 ? (
+          <Text style={styles.noBusesText}>No buses found. Add some buses to get started!</Text>
+        ) : (
+          buses.map((bus) => (
+            <View
+              key={bus.id}
+              style={[
+                styles.driverCard,
+                { backgroundColor: bus.driver_id ? '#111' : '#ccc' }
+              ]}
+            >
+              <Image 
+                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/744/744465.png' }} 
+                style={styles.driverImg} 
+              />
+              <View style={styles.driverInfo}>
+                <Text style={styles.driverText}>Bus Number: <Text style={styles.driverBold}>{bus.number}</Text></Text>
+                <Text style={styles.driverText}>Driver: <Text style={styles.driverBold}>{bus.driver_name || 'Not assigned'}</Text></Text>
+                <Text style={styles.driverText}>Route: <Text style={styles.driverBold}>{bus.route_name || 'Not assigned'}</Text></Text>
+                <Text style={styles.driverText}>Status: <Text style={styles.driverBold}>{bus.driver_id ? 'Active' : 'Inactive'}</Text></Text>
+              </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -211,6 +213,19 @@ const styles = StyleSheet.create({
   logoutContainer: {
     paddingHorizontal: 24,
     marginBottom: 12,
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+    color: '#666',
+  },
+  noBusesText: {
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+    color: '#666',
+    paddingHorizontal: 20,
   },
 });
 
