@@ -2,10 +2,16 @@ import { Router } from 'express';
 import {
 	getBuses, getBusInfo, getTimeGaps,
 	createCompanyHandler, updateCompanyHandler, deleteCompanyHandler,
-	createBusHandler, updateBusHandler, deleteBusHandler
+	createBusHandler, updateBusHandler, deleteBusHandler,
+	getAllCompaniesHandler, getCompanyHandler, getCompanyStatsHandler
 } from '../controllers/companyController';
 
 const router = Router();
+
+// Public endpoints
+router.get('/companies', getAllCompaniesHandler);
+router.get('/company/:companyId', getCompanyHandler);
+router.get('/company/:companyId/stats', getCompanyStatsHandler);
 
 // Company CRUD
 router.post('/company', createCompanyHandler);
