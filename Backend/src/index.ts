@@ -1,4 +1,5 @@
 
+import 'react-native-url-polyfill/auto';
 
 import express from 'express';
 import cors from 'cors';
