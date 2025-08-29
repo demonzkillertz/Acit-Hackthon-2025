@@ -21,10 +21,17 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 
+
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import driverRoutes from './routes/driverRoutes';
 import companyRoutes from './routes/companyRoutes';
+import routeRoutes from './routes/routeRoutes';
+import locationRoutes from './routes/locationRoutes';
+import reviewRoutes from './routes/reviewRoutes';
+import favoriteRoutes from './routes/favoriteRoutes';
+import alertRoutes from './routes/alertRoutes';
+import waitlistRoutes from './routes/waitlistRoutes';
 import testRoutes from './routes/testRoutes';
 
 
@@ -33,6 +40,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api/driver', driverRoutes);
 app.use('/api/company', companyRoutes);
+
+app.use('/api/routes', routeRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/waitlists', waitlistRoutes);
 
 app.get('/', (req, res) => {
   res.send('Bus Tracking & Passenger Safety Backend is running.');
